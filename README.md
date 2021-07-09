@@ -7,6 +7,5 @@
 然后安装依赖：
 
 ```bash
-pip3 install pymysql
-pip3 install html5lib
+bash deploy.sh
 ```
