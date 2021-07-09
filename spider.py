@@ -1,13 +1,16 @@
+import os
 import random
 import re
 import time
+from datetime import date, timedelta
 
 import fire
 import peewee
 import requests
+import tushare
 from bs4 import BeautifulSoup
 
-from orm import db, Article
+from orm import db, Article, News
 
 
 def policy_spider(start=1):
@@ -94,9 +97,28 @@ def policy_spider(start=1):
             raise e
 
 
+def news_spider():
+    db.create_tables([News])
+
+    tspro = tushare.pro_api(os.getenv('TUSHARE_TOKEN'))
+    d = date(2010, 1, 1)
+    while True:
+        ds = d.strftime('%Y%m%d')
+        print('\n' + ds)
+        for news in tspro.cctv_news(date=ds).itertuples():
+            print(news.title)
+            News.get_or_create(title=news.title, date=news.date, defaults={'content': news.content})
+        d = d + timedelta(days=1)
+        if d >= date.today():
+            break
+        else:
+            time.sleep(40)
+
+
 if __name__ == '__main__':
     db.connect()
     fire.Fire({
         'policy': policy_spider,
+        'news': news_spider,
     })
     db.close()

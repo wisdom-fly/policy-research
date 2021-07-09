@@ -30,3 +30,12 @@ class Article(BaseModel):
 
     class Meta:
         table_name = 'articles'
+
+
+class News(BaseModel):
+    title = CharField()
+    content = TextField()
+    date = DateField()
+
+    class Meta:
+        table_name = 'news'
