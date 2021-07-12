@@ -51,7 +51,13 @@ def policy_spider(start=1):
             dir1 = int(int(id) / 1000000)
             dir2 = int(int(id) / 1000)
             url = f'http://www.gd.gov.cn/gkmlpt/content/{dir1}/{dir2}/post_{id}.html'
-        r = requests.get(url)
+        while True:
+            r = requests.get(url)
+            if r.status_code == 500:
+                print('Server Error 500, retrying...')
+                time.sleep(60)
+            else:
+                break
         soup = BeautifulSoup(r.text, 'html5lib')
 
         def extract_wjk():
@@ -101,7 +107,8 @@ def news_spider():
     db.create_tables([News])
 
     tspro = tushare.pro_api(os.getenv('TUSHARE_TOKEN'))
-    d = date(2010, 1, 1)
+    latest = News.select().order_by(News.date.desc()).first()
+    d = latest.date if latest else date(2010, 1, 1)
     while True:
         ds = d.strftime('%Y%m%d')
         print('\n' + ds)
@@ -112,7 +119,7 @@ def news_spider():
         if d >= date.today():
             break
         else:
-            time.sleep(40)
+            time.sleep(35)
 
 
 if __name__ == '__main__':
