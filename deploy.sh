@@ -4,3 +4,4 @@ pip3 install -r requirements.txt
 pip3 install pymysql
 pip3 install html5lib
 pip3 install pandas
+mkdir output

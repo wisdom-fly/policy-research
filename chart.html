@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Policy Research</title>
+</head>
+<body>
+
+<div id="app">
+    <label>
+        Keyword:
+        <select v-model="selected">
+            <option disabled value=""></option>
+            <option v-for="word in Object.keys(json)">{{word}}</option>
+        </select>
+    </label>
+    <template v-if="selected">
+        <br>
+        <label>
+            Start Date:
+            <select v-model="startDate">
+                <option value=""></option>
+                <option v-for="date in dates">{{date}}</option>
+            </select>
+        </label>
+        <br>
+        <label>
+            End Date:
+            <select v-model="endDate">
+                <option value=""></option>
+                <option v-for="date in dates">{{date}}</option>
+            </select>
+        </label>
+        <br>
+        <button @click="applyDateFilter">Apply Date Filter</button>
+    </template>
+</div>
+<br>
+<canvas id="chart"></canvas>
+
+<script src="https://cdn.jsdelivr.net/npm/vue@2"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@3.4.1/dist/chart.min.js"></script>
+<script src="output/data.js"></script>
+<script>
+    let chart = new Chart('chart', { type: 'line' });
+
+    new Vue({
+        el: '#app',
+        data: {
+            selected: null,
+            startDate: null,
+            endDate: null,
+            dataset: [],
+        },
+        computed: {
+            dates: function () {
+                return Object.keys(json[this.selected]);
+            },
+        },
+        watch: {
+            selected: function (word) {
+                this.dataset = json[word];
+                this.updateChart();
+            },
+        },
+        methods: {
+            applyDateFilter: function () {
+                const originDataset = json[this.selected];
+                let dataset = {};
+                let started = false;
+
+                for (date in originDataset) {
+                    if (date === this.startDate)
+                        started = true;
+                    if (started)
+                        dataset[date] = originDataset[date];
+                    if (date === this.endDate)
+                        break;
+                }
+
+                this.dataset = dataset;
+                this.updateChart();
+            },
+            updateChart: function () {
+                chart.data.labels = Object.keys(this.dataset);
+                chart.data.datasets = [
+                    {
+                        label: this.selected,
+                        data: Object.values(this.dataset),
+                    }];
+                chart.update();
+            },
+        },
+    });
+</script>
+</body>
+</html>
