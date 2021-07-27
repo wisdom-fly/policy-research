@@ -20,6 +20,7 @@ def policy_analyser():
 
 def news_analyser(trend=None):
     newslist = News.select().order_by(News.date)
+    jieba.load_userdict('dict.txt')
 
     def analyse_all():
         c = Counter()
